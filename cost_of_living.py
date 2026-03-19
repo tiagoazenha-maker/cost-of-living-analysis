@@ -5,15 +5,12 @@ import os
 from sqlalchemy import create_engine
 from urllib.parse import quote_plus
 
-# garantir pasta images
 os.makedirs("images", exist_ok=True)
 
-# carregar dados
 path = Path(__file__).parent / "cost_of_living.csv"
 df = pd.read_csv(path)
 df.columns = df.columns.str.strip()
 
-# feature engineering
 df["income_to_cost_ratio"] = df["monthly_income"] / df["cost_index"]
 
 df["cost_category"] = pd.cut(
@@ -22,7 +19,6 @@ df["cost_category"] = pd.cut(
     labels=["Low", "Medium", "High"]
 )
 
-# 🔥 AQUI entra o SQL
 password = quote_plus("Telemovel27!")
 engine = create_engine(f"postgresql://postgres:{password}@localhost:5433/postgres")
 
@@ -30,13 +26,11 @@ df.to_sql("cost_of_living", engine, if_exists="replace", index=False)
 
 print("Dados enviados para PostgreSQL!")
 
-# filtering
 high_cost_low_power = df[
     (df["cost_index"] > 120) &
     (df["purchasing_power_index"] < 60)
 ]
 
-# gráficos
 plt.figure()
 plt.hist(df["cost_index"])
 plt.title("Cost Index Distribution")
